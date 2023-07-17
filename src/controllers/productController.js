@@ -70,7 +70,7 @@ class ProductController {
     res.status(200).sendSuccess("Product deleted successfully");
   };
 
-  showProd = async (req, res) => {
+  getProd = async (req, res) => {
     try {
       const limit = parseInt(req.query.limit) || 10;
       const page = parseInt(req.query.page) || 1;

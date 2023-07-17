@@ -1,14 +1,15 @@
 const { connect } = require("mongoose");
+const { commander } = require("../utils/commander");
+const dotenv = require("dotenv");
+const { MongoSingleton } = require("../utils/sigleton");
+const { mode } = commander.opts();
+dotenv.config({
+  path: mode === "development" ? "./.env.development" : "./.env.production",
+});
 
-const JWT_PRIVATE_KEY = 'CoderPalabraTOPSecreta'
-const url =
-  "mongodb+srv://ArielKlug:gAlu9Nr8tC0xp2hO@proyect0.0lbl7pm.mongodb.net/Ecommerce?retryWrites=true&w=majority";
+const JWT_PRIVATE_KEY = process.env.JWT_SECRET_KEY;
 
 module.exports = {
   JWT_PRIVATE_KEY,
-  connectDB: () => {
-    
-    connect(url);
-    console.log('DB conectada con éxito');
-  },
+  connectDB: async () => await MongoSingleton.getInstance(),
 };

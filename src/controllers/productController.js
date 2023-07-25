@@ -1,9 +1,8 @@
-const products = require("../daos/mongo/productManagerMongo");
+const { productService } = require("../services/productService");
 const { productModel } = require("../models/productModel");
-const productsManager = new products();
 
 class ProductController {
-  createProd = async (req, res) => {
+  createProduct = async (req, res) => {
     try {
       const prod = req.body;
 
@@ -21,16 +20,34 @@ class ProductController {
           mensaje: "Todos los campos son necesarios",
         });
       } else {
-        await productsManager.addProduct(prod);
+        const codeCheck = await productService.getProducts();
+
+        if (codeCheck.find((item) => item.code === prod.code)) {
+          return res.send({
+            status: "error",
+            mensaje: "Ya existe un producto con ese código",
+          });
+        } else {
+          let newProduct = {
+            title: prod.title,
+            description: prod.description,
+            price: prod.price,
+            thumbnail: prod.thumbnail,
+            code: prod.code,
+            stock: prod.stock,
+            category: prod.category,
+          };
+          await productService.addProduct(newProduct);
+        }
       }
 
       res.status(200).sendSuccess("Product created successfully");
     } catch (error) {
-      console.log(error);
+      return new Error(error);
     }
   };
 
-  updateProd = async (req, res) => {
+  updateProduct = async (req, res) => {
     try {
       const { pid } = req.params;
       if (!pid) {
@@ -56,21 +73,36 @@ class ProductController {
         });
       }
 
-      await productsManager.updateProduct(pid, prodToReplace);
+      await productService.updateProduct(pid, prodToReplace);
 
       res.status(200).sendSuccess("Product updated successfully");
     } catch (error) {
-      console.log(error);
+      return new Error(error);
     }
   };
 
-  deleteProd = async (req, res) => {
-    const { pid } = req.params;
-    await productsManager.deleteProduct(pid);
-    res.status(200).sendSuccess("Product deleted successfully");
-  };
+  deleteProduct = async (req, res) => {
+    try {
+      const { pid } = req.params;
 
-  getProd = async (req, res) => {
+      await productService.deleteProduct(pid);
+      res.status(200).sendSuccess("Product deleted successfully");
+    } catch (error) {
+      return new Error(error);
+    }
+  };
+  getProduct = async (req, res) => {
+    try {
+      const { pid } = req.params;
+
+      let result = await productService.getProductById(pid);
+
+      res.send({ status: "success", payload: result });
+    } catch (error) {
+      return new Error(error);
+    }
+  };
+  getProducts = async (req, res) => {
     try {
       const limit = parseInt(req.query.limit) || 10;
       const page = parseInt(req.query.page) || 1;
@@ -110,7 +142,6 @@ class ProductController {
       }
       const payload = `Se encontraron ${docs.length} productos en la página ${page}`;
       if (req.user) {
-        
         const { first_name, last_name, role, cartId } = req.user;
         return res.render("products", {
           status: "success",
@@ -125,7 +156,7 @@ class ProductController {
           first_name,
           last_name,
           role,
-          cartId
+          cartId,
         });
       } else {
         res.render("products", {
@@ -141,9 +172,9 @@ class ProductController {
         });
       }
     } catch (error) {
-      console.log(error);
+      return new Error(error);
     }
   };
 }
 
-module.exports = new ProductController();
+module.exports = ProductController;

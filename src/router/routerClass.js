@@ -24,11 +24,9 @@ class RouterClass {
   handlePolicies = (policies) => (req, res, next) => {
     if (policies[0] === "PUBLIC") return next();
 
-    const authHeader = req.cookies['coderCookie'];
+    const token = req.cookies["coderCookie"];
 
-    if (!authHeader)
-      return res.send({ status: "error", error: "No authorization" });
-    const token = authHeader;
+    if (!token) return res.send({ status: "error", error: "No authorization" });
 
     const user = jwt.verify(token, JWT_PRIVATE_KEY);
 

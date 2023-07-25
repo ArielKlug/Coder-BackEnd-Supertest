@@ -1,19 +1,39 @@
 class ViewsController {
-  register = (req, res) => {
-    res.render("registerForm", {
-      style: "index.css",
-    });
+  register = async (req, res) => {
+    try {
+      res.render("registerForm", {
+        style: "index.css",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
-  login = (req, res) => {
-    res.render("login", {
-      style: "index.css",
-    });
+  login = async (req, res) => {
+    try {
+      res.render("login", {
+        style: "index.css",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
-  restorePass = (req, res) => {
-    res.render("passRestore", {
-      style: "index.css",
-    });
+  restorePass = async (req, res) => {
+    try {
+      res.render("passRestore", {
+        style: "index.css",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
-  
+  chat = async (req, res)=>{
+    try {
+      res.render("chat", {
+       
+      });
+    } catch (error) {
+      return new Error(error);
+    }
+  }
 }
 module.exports = new ViewsController();

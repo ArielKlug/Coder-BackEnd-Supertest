@@ -1,117 +1,156 @@
-const CartManagerMongo = require("../daos/mongo/cartManagerMongo");
-const userManagerMongo = require("../daos/mongo/userManagerMongo");
+const { UserDto } = require("../dto/userDto");
+const { cartService } = require("../services/cartService");
+
+const { sessionsService } = require("../services/sessionService");
 const { createHash, isValidPassword } = require("../utils/bcryptHash");
 const { generateToken } = require("../utils/generateTokenJwt");
-const userMongo = new userManagerMongo();
-const cartManager = new CartManagerMongo();
+
 class SessionsController {
   register = async (req, res) => {
     try {
       const { age, first_name, last_name, email, password } = req.body;
+      const newCart = {
+        products: [],
+        userId: "",
+      };
 
-      const idCart = await cartManager.addCart();
+      const cart = await cartService.addCart(newCart);
       if (!age || !first_name || !last_name || !email || !password) {
         res.userError("All fields are necesary");
       }
+
       const newUser = {
         first_name: first_name,
         last_name: last_name,
         age: age,
         email: email,
         password: createHash(password),
-        cartId: idCart,
-        role: "user",
+        cartId: cart._id,
+        role: "admin",
       };
 
-      const userId = await userMongo.addUser(newUser);
+      const userId = await sessionsService.addUser(newUser);
 
       if (!userId) {
         res.send({ status: "error", error: "Error creating new user" });
       }
 
-      await cartManager.updateCart(idCart, userId);
-
+      //anterior updateCart para ponerle el Id del usuario
+      const cartToUpdate = await cartService.getCart(cart._id);
+      cartToUpdate.userId = userId;
+      await cartToUpdate.save();
       res.status(200).redirect("http://localhost:8080/");
     } catch (error) {
       res.sendServerError(error);
     }
   };
   login = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    if (email == "" || password == "") {
-      return res.send("Complete todos los campos para iniciar sesión");
+      if (email == "" || password == "") {
+        return res.send("Complete todos los campos para iniciar sesión");
+      }
+      const userDB = await sessionsService.getUserByEmail({ email });
+
+      let verifyPass = isValidPassword(password, userDB);
+
+      if (!userDB) {
+        return res.send({
+          status: "error",
+          message: "No existe ese usuario, revise los campos",
+        });
+      }
+      if (!verifyPass) {
+        return res.sendUserError("Email or password incorrect");
+      }
+      let userToToken = {
+        first_name: userDB.first_name,
+        last_name: userDB.last_name,
+        email: userDB.email,
+        cartId: userDB.cartId,
+        role: userDB.role,
+      };
+
+      const access_token = generateToken(userToToken);
+      if (!access_token) {
+        return res.send({
+          status: "error",
+          message: "Token generation error",
+        });
+      }
+
+      res
+        .cookie("coderCookie", access_token, {
+          maxAge: 60 * 60 * 100 * 10000,
+          httpOnly: true,
+        })
+        .redirect("http://localhost:8080/api/products");
+    } catch (error) {
+      return new Error(error);
     }
-    const userDB = await userMongo.findUser({ email });
-
-    let verifyPass = isValidPassword(password, userDB);
-
-    if (!userDB) {
-      return res.send({
-        status: "error",
-        message: "No existe ese usuario, revise los campos",
-      });
-    }
-    if (!verifyPass) {
-      return res.userError("Email or password incorrect");
-    }
-    let userToToken = {
-      first_name: userDB.first_name,
-      last_name: userDB.last_name,
-      age: userDB.age,
-      email: userDB.email,
-      cartId: userDB.cartId,
-      role: userDB.role,
-    };
-
-    const access_token = generateToken(userToToken);
-    if (!access_token) {
-      return res.send({
-        status: "error",
-        message: "Token generation error",
-      });
-    }
-
-    res
-      .cookie("coderCookie", access_token, {
-        maxAge: 60 * 60 * 100 * 10000,
-        httpOnly: true,
-      })
-      .redirect("http://localhost:8080/api/products");
   };
-
-  restorePass = async (req, res) => {
-    const { email, password } = req.body;
-
-    const userDB = await userMongo.findUser({ email });
-
-    if (!userDB) {
-      return res
-        .status(401)
-        .send({ status: "error", message: "El usuario no existe" });
+  allUsers = async (req, res) => {
+    try {
+      const allUsers = await sessionsService.getUsers();
+      res.send({ status: "success", payload: allUsers });
+    } catch (error) {
+      return new Error(error);
     }
+  };
+  restorePass = async (req, res) => {
+    try {
+      const { email, password } = req.body;
 
-    userDB.password = createHash(password);
-    await userDB.save();
+      const userDB = await sessionsService.getUserByEmail({ email });
 
-    res.status(200).send({
-      status: "success",
-      message: "Contraseña actualizada correctamente",
-    });
+      if (!userDB) {
+        return res
+          .status(401)
+          .send({ status: "error", message: "El usuario no existe" });
+      }
+
+      userDB.password = createHash(password);
+      await userDB.save();
+
+      res.status(200).send({
+        status: "success",
+        message: "Contraseña actualizada correctamente",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
   failRegister = async (req, res) => {
-    console.log("Falla en estrategia de autenticación");
-    res.send({
-      status: "error",
-      message: "Falló la autenticación del registro",
-    });
+    try {
+      console.log("Falla en estrategia de autenticación");
+      res.send({
+        status: "error",
+        message: "Falló la autenticación del registro",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
   failLogin = async (req, res) => {
-    console.log("Falla en estrategia de autenticación");
-    res.send({ status: "error", message: "Falló la autenticación del login" });
+    try {
+      console.log("Falla en estrategia de autenticación");
+      res.send({
+        status: "error",
+        message: "Falló la autenticación del login",
+      });
+    } catch (error) {
+      return new Error(error);
+    }
   };
   current = async (req, res) => {
-    res.send(req.user);
+    try {
+      
+      let user = new UserDto(req.user)
+      res.send(user);
+    } catch (error) {
+      return new Error(error);
+    }
   };
 }
 

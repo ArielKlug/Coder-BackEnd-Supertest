@@ -1,37 +1,41 @@
 const { userModel } = require("../../models/userModel");
 
 class UserManagerMongo {
-  addUser = async (newUser) => {
+  add = async (newUser) => {
     try {
-      const { first_name, last_name, age, email, password, cartId, role } =
-        newUser;
-      const user = await userModel.create({
-        first_name,
-        last_name,
-        age,
-        email,
-        password,
-        cartId,
-        role,
-      })
+      const user = await userModel.create(newUser);
       return user._id;
     } catch (error) {
       return new Error(error);
     }
   };
-
-  findUser = async (email) => {
+  get = async () => {
+    try {
+      return await userModel.find();
+    } catch (error) {
+      return new Error(error);
+    }
+  };
+  getByEmail = async (email) => {
     try {
       return await userModel.findOne(email);
     } catch (error) {
-      console.log(error);
+      return new Error(error);
     }
   };
-  findUserRegistered = async (email, password) => {
+
+  update = async (uid, userToReplace) => {
     try {
-      return await userModel.findOne({ email, password });
+      await userModel.updateOne({ _id: uid }, userToReplace);
     } catch (error) {
-      console.log(error);
+      return new Error(error);
+    }
+  };
+  delete = async (uid) => {
+    try {
+      await userModel.deleteOne({ _id: uid });
+    } catch (error) {
+      return new Error(error);
     }
   };
 }

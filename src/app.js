@@ -3,20 +3,23 @@ const cookieParser = require("cookie-parser");
 const handlebars = require("express-handlebars");
 const passport = require("passport");
 const { Server } = require("socket.io");
-const dataBase = require("./config/objectConfig.js");
+
 const router = require("./router/index.js");
 const { initPassport } = require("./passportConfig/passportConfig.js");
 const cors = require("cors");
+const { socketChat } = require("./utils/chatServer.js");
 
-dataBase.connectDB();
+
 
 const app = express();
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`Server listening ${PORT}`);
+  
 });
-
+const io = new Server(httpServer);
+socketChat(io)
 initPassport();
 passport.use(passport.initialize());
 app.engine("handlebars", handlebars.engine());

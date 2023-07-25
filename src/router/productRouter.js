@@ -1,20 +1,22 @@
 const { RouterClass } = require("./routerClass");
 
-const {
-  createProd,
-  updateProd,
-  deleteProd,
-  getProd,
-} = require("../controllers/productController");
+const ProductController = require("../controllers/productController");
+const products = new ProductController();
 
 const { passportAuth } = require("../passportConfig/passportAuth");
 
 class ProductRouter extends RouterClass {
   init() {
-    this.post("/",['USER_PREMIUM', 'ADMIN'], createProd);
-    this.put("/:pid",['USER_PREMIUM', 'ADMIN'], updateProd);
-    this.delete("/:pid",['USER_PREMIUM', 'ADMIN'], deleteProd);
-    this.get("/",['USER', 'USER_PREMIUM', 'ADMIN'], passportAuth('jwt'), getProd )
+    this.post("/", ["ADMIN"], products.createProduct);
+    this.put("/:pid", ["ADMIN"], products.updateProduct);
+    this.delete("/:pid", ["ADMIN"], products.deleteProduct);
+    this.get("/", ["USER", "ADMIN"], passportAuth("jwt"), products.getProducts);
+    this.get(
+      "/:pid",
+      ["USER", "ADMIN"],
+      passportAuth("jwt"),
+      products.getProduct
+    );
   }
 }
 

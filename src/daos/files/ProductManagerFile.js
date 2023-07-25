@@ -45,7 +45,7 @@ class productManager {
     }
   };
 
-  getProducts = async () => {
+  get = async () => {
     try {
       await this.loadProducts();
       return this.products;
@@ -54,7 +54,7 @@ class productManager {
     }
   };
 
-  addProduct = async (
+  add = async (
     title,
     description,
     price,
@@ -96,7 +96,7 @@ class productManager {
     }
   };
 
-  getProductById = async (pid) => {
+  getById = async (pid) => {
     try {
       await this.loadProducts();
       const findProduct = this.products.find((e) => e.id === pid);
@@ -111,7 +111,7 @@ class productManager {
       console.log(err);
     }
   };
-  updateProduct = async (id, updatedFields) => {
+  update = async (id, updatedFields) => {
     try {
       await this.loadProducts();
       const index = this.products.findIndex((producto) => producto.id === id);
@@ -130,7 +130,7 @@ class productManager {
     }
   };
 
-  deleteProduct = async (id) => {
+  delete = async (id) => {
     try {
       await this.loadProducts();
       const index = this.products.findIndex((producto) => producto.id === id);

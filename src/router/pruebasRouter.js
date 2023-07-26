@@ -9,7 +9,9 @@ const { sendSms } = require("../utils/sendSms");
 class RouterPruebas extends RouterClass {
   init() {
     this.get("/sms", ["PUBLIC"], async (req, res) => {
+      
       await sendSms()
+      
       res.send('SMS enviado')
     });
     this.get("/mail", ["PUBLIC"], passportAuth('jwt'), async (req, res) => {

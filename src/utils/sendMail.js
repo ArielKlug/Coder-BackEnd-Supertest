@@ -14,7 +14,9 @@ const transport = nodemailer.createTransport({
 
   exports.sendMail = async ( destinatario, asunto, html) => {
     try {
+      
         return await transport.sendMail({
+        
     from: `Ari test <${config.gmailUserApp}>`,
     //Correo del destinatario
     to: `${destinatario}`,

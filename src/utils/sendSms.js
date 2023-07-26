@@ -7,8 +7,9 @@ const twilioPhoneNumber=config.twilioPhoneNumber
 
 const cliente = twilio(twilioSid, twilioAuthToken)
 
-exports.sendSms= () =>cliente.messages.create({
-    body: 'body del sms',
+
+exports.sendSms = () => cliente.messages.create({
+    body: `Gracias por tu compra `,
     from: twilioPhoneNumber,
     to: config.myPhoneNumber
 })

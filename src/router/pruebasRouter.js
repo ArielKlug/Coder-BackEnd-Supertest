@@ -4,19 +4,36 @@ const { fork } = require("child_process");
 const { sessionsService } = require("../services/sessionService");
 const { passportAuth } = require("../passportConfig/passportAuth");
 const { sendSms } = require("../utils/sendSms");
+const { generateUser } = require("../utils/TestingUtils/generateUserFaker");
+const { generateProducts } = require("../utils/TestingUtils/generateProductFaker");
 
 //funcion para configurar Mail
 class RouterPruebas extends RouterClass {
   init() {
-    this.get("/sms", ["PUBLIC"], async (req, res) => {
-      
-      await sendSms()
-      
-      res.send('SMS enviado')
+    this.get("/mockUsers", ["PUBLIC"], (req, res) => {
+      let users = [];
+      for (let i = 0; i < 100; i++) {
+        users.push(generateUser());
+      }
+
+      res.send(users);
     });
-    this.get("/mail", ["PUBLIC"], passportAuth('jwt'), async (req, res) => {
+    this.get("/mockingProducts", ["PUBLIC"], (req, res) => {
+      let products = [];
+      for (let i = 0; i < 100; i++) {
+        products.push(generateProducts());
+      }
+
+      res.send(products);
+    });
+    this.get("/sms", ["PUBLIC"], async (req, res) => {
+      await sendSms();
+
+      res.send("SMS enviado");
+    });
+    this.get("/mail", ["PUBLIC"], passportAuth("jwt"), async (req, res) => {
       //A quién se le envía el Mail
-      
+
       let destinatario = req.user.email;
       let asunto = "Coder test";
       let html = `<div><h1>Mail relevante :)</h1></div>`;

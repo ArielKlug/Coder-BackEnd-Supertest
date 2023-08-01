@@ -1,8 +1,11 @@
 const { productService } = require("../services/productService");
 const { productModel } = require("../models/productModel");
+const { CustomError } = require("../utils/customError/customError");
+const { generateProductErrorInfo } = require("../utils/customError/info");
+const { EError } = require("../utils/customError/EErrors");
 
 class ProductController {
-  createProduct = async (req, res) => {
+  createProduct = async (req, res, next) => {
     try {
       const prod = req.body;
 
@@ -15,10 +18,12 @@ class ProductController {
         !prod.stock ||
         !prod.category
       ) {
-        return res.status(400).send({
-          status: "error",
-          mensaje: "Todos los campos son necesarios",
-        });
+        CustomError.createError({
+          name: 'Product creation error',
+          cause: generateProductErrorInfo(prod),
+          message: 'Error trying to create the products',
+          code: EError.INVALID_TYPE_ERROR
+        })
       } else {
         const codeCheck = await productService.getProducts();
 
@@ -43,7 +48,7 @@ class ProductController {
 
       res.status(200).sendSuccess("Product created successfully");
     } catch (error) {
-      return new Error(error);
+      next(error);
     }
   };
 

@@ -9,7 +9,7 @@ const cliente = twilio(twilioSid, twilioAuthToken)
 
 
 exports.sendSms = () => cliente.messages.create({
-    body: `Gracias por tu compra `,
+    body: `Que linda vista tengo bb `,
     from: twilioPhoneNumber,
     to: config.myPhoneNumber
 })

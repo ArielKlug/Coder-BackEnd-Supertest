@@ -1,3 +1,6 @@
+const { promises } = require("fs");
+const fs = promises;
+const fsSync = require("fs");
 class UserManagerFile {
   constructor(path) {
     this.Users = [];

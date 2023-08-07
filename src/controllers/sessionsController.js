@@ -8,7 +8,7 @@ const { generateToken } = require("../utils/generateTokenJwt");
 class SessionsController {
   register = async (req, res) => {
     try {
-      const { age, first_name, last_name, email, password } = req.body;
+      const {  first_name, last_name, age, email, password } = req.body;
       const newCart = {
         products: [],
         userId: "",
@@ -26,7 +26,7 @@ class SessionsController {
         email: email,
         password: createHash(password),
         cartId: cart._id,
-        role: "admin",
+        role: "user",
       };
 
       const userId = await sessionsService.addUser(newUser);
@@ -87,7 +87,7 @@ class SessionsController {
         })
         .redirect("http://localhost:8080/api/products");
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   allUsers = async (req, res) => {
@@ -95,7 +95,7 @@ class SessionsController {
       const allUsers = await sessionsService.getUsers();
       res.send({ status: "success", payload: allUsers });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   restorePass = async (req, res) => {
@@ -118,29 +118,29 @@ class SessionsController {
         message: "Contraseña actualizada correctamente",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   failRegister = async (req, res) => {
     try {
-      console.log("Falla en estrategia de autenticación");
+      req.logger.info("Falla en estrategia de autenticación");
       res.send({
         status: "error",
         message: "Falló la autenticación del registro",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   failLogin = async (req, res) => {
     try {
-      console.log("Falla en estrategia de autenticación");
+      req.logger.info("Falla en estrategia de autenticación");
       res.send({
         status: "error",
         message: "Falló la autenticación del login",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   current = async (req, res) => {
@@ -149,7 +149,7 @@ class SessionsController {
       let user = new UserDto(req.user)
       res.send(user);
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
 }

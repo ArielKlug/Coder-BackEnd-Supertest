@@ -5,11 +5,51 @@ const { sessionsService } = require("../services/sessionService");
 const { passportAuth } = require("../passportConfig/passportAuth");
 const { sendSms } = require("../utils/sendSms");
 const { generateUser } = require("../utils/TestingUtils/generateUserFaker");
-const { generateProducts } = require("../utils/TestingUtils/generateProductFaker");
+const {
+  generateProducts,
+} = require("../utils/TestingUtils/generateProductFaker");
+const { faker } = require("@faker-js/faker");
 
 //funcion para configurar Mail
 class RouterPruebas extends RouterClass {
   init() {
+    this.get('/logger-test', ['PUBLIC'], (req, res) =>{
+      req.logger.debug('éste es un texto de Debug desde logger')
+      req.logger.http('éste es un texto de Http desde logger')
+      req.logger.info('éste es un texto de Info desde logger')
+      req.logger.warning('éste es un texto de Warning desde logger')
+      req.logger.error('éste es un texto de Error desde logger')
+      req.logger.fatal('éste es un texto de Fatal desde logger')
+    
+    })
+    this.get("/testuser", ["PUBLIC"], (req, res) => {
+      let first_name = faker.person.firstName()
+      let  last_name = faker.person.lastName()
+       let age = faker.string.numeric(2, {  })
+       let  email = faker.internet.email()
+       let  password = faker.internet.password()
+       
+      
+      res.send({ first_name, last_name, age, email, password });
+    });
+    this.get("/simple", ["PUBLIC"], (req, res) => {
+      let suma = 0;
+      for (let i = 0; i < 10000000; i++) {
+        suma += i;
+      }
+      res.send({ suma: suma });
+    });
+    this.get("/compleja", ["PUBLIC"], (req, res) => {
+      let suma = 0;
+      for (let i = 0; i < 5e8; i++) {
+        suma += i;
+      }
+      res.send({ suma: suma });
+    });
+    this.get("/logger", ["PUBLIC"], async (req, res) => {
+      req.logger.warning("warning capo");
+      res.send({ message: "prueba logger" });
+    });
     this.get("/mockUsers", ["PUBLIC"], (req, res) => {
       let users = [];
       for (let i = 0; i < 100; i++) {

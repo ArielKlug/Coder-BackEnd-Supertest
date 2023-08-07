@@ -5,7 +5,7 @@ class ViewsController {
         style: "index.css",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   login = async (req, res) => {
@@ -14,7 +14,7 @@ class ViewsController {
         style: "index.css",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   restorePass = async (req, res) => {
@@ -23,7 +23,7 @@ class ViewsController {
         style: "index.css",
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   chat = async (req, res)=>{
@@ -32,7 +32,7 @@ class ViewsController {
        
       });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   }
 }

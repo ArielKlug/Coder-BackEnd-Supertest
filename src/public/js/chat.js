@@ -1,5 +1,5 @@
 
-console.log("socketin");
+
 const socket = io();
 let user;
 let chatBox = document.getElementById("chatBox");

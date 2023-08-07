@@ -2,39 +2,19 @@ const { ticketModel } = require("../../models/ticketModel");
 
 class TicketManagerMongo {
   add = async (newTicket) => {
-    try {
-      return await ticketModel.create(newTicket);
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await ticketModel.create(newTicket);
   };
   get = async () => {
-    try {
-      return await ticketModel.find();
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await ticketModel.find();
   };
   getById = async (tid) => {
-    try {
-      return await ticketModel.findOne({ _id: tid });
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await ticketModel.findOne({ _id: tid });
   };
   update = async (updatedTicket) => {
-    try {
-      return await ticketModel.findByIdAndUpdate({ _id: tid }, updatedTicket);
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await ticketModel.findByIdAndUpdate({ _id: tid }, updatedTicket);
   };
   delete = async (tid) => {
-    try {
-      return await ticketModel.deleteOne({ _id: tid });
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await ticketModel.deleteOne({ _id: tid });
   };
 }
 

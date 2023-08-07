@@ -10,6 +10,10 @@ const cors = require("cors");
 const { socketChat } = require("./utils/chatServer.js");
 const compression = require("express-compression");
 const { errorHandler } = require("./middlewares/errorMiddleware.js");
+const { addLogger } = require("./middlewares/loggerMiddleware.js");
+const { logger } = require("./config/logger.js");
+
+
 
 
 
@@ -17,7 +21,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 const httpServer = app.listen(PORT, () => {
-  console.log(`Server listening ${PORT}`);
+ logger.info(`Server listening ${PORT}`);
   
 });
 const io = new Server(httpServer);
@@ -30,6 +34,7 @@ app.engine("handlebars", handlebars.engine());
 app.set("views", __dirname + "/views");
 app.set("view engine", "handlebars");
 
+
 app.use(compression({
   brotli:{enabled:true, zlib:{}}
 }))
@@ -38,6 +43,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 app.use("/static", express.static(__dirname + "/public"));
-app.use(router);
+app.use(addLogger)
 app.use(errorHandler)
+app.use(router);
+
+

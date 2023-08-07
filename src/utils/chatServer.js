@@ -1,4 +1,7 @@
+
+const { logger } = require("../config/logger");
 const { messageService } = require("../services/messageService");
+
 
 const socketChat = async (io) => {
   io.on("connection", (socket) => {
@@ -8,7 +11,7 @@ const socketChat = async (io) => {
         let messages = await messageService.getMessages();
         socket.emit("messageLogs", messages);
       } catch (error) {
-        console.log(error);
+        logger.error(error);
       }
     });
     socket.on("authenticated", (data) => {

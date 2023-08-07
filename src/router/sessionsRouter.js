@@ -11,7 +11,7 @@ const session = new SessionsController()
 
 class SessionsRouter extends RouterClass {
   init() {
-    this.post("/register", ['PUBLIC'],session.register);
+    this.post("/register", ['PUBLIC'], session.register);
     this.post("/login",['PUBLIC'], session.login);
     this.post("/restaurarpass",['PUBLIC'], session.restorePass);
     this.get('/users', ['ADMIN'], session.allUsers)

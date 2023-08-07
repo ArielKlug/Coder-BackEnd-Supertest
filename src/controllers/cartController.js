@@ -1,7 +1,8 @@
-const { v4: uuidv4 } = require("uuid");
+
 const { cartService } = require("../services/cartService");
 const { productService } = require("../services/productService");
 const { ticketService } = require("../services/ticketService");
+
 
 class CartController {
   getOneCart = async (req, res) => {
@@ -19,7 +20,7 @@ class CartController {
         cart: cartData,
       });
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
     }
   };
   purchase = async (req, res) => {
@@ -77,7 +78,7 @@ class CartController {
         outstockedProds.forEach((item) => {
           productsNotBuyed.push(item.product._id);
         });
-        console.log(productsNotBuyed);
+        
         res.send({
           ticketResult: ticketResult,
           message:
@@ -89,14 +90,14 @@ class CartController {
         res.send({ ticketResult: ticketResult });
       }
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
     }
   };
   getAllCarts = async (req, res) => {
     try {
       res.send(await cartService.getCarts());
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
     }
   };
   addProdToCart = async (req, res) => {
@@ -119,14 +120,14 @@ class CartController {
 
         if (!cart) {
           // El carrito no existe
-          console.log("Carrito no encontrado");
+          req.logger.warning("Carrito no encontrado");
           return;
         }
 
         cart.products.push({ product: pid, quantity: 1 });
         await cart.save();
 
-        console.log("Producto agregado al carrito");
+        req.logger.info("Producto agregado al carrito");
       }
 
       // Obtener el carrito actualizado después de la operación
@@ -138,7 +139,7 @@ class CartController {
         cart: updatedCart,
       });
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
       res.status(500).send({
         status: "error",
         payload: "Error al agregar el producto al carrito",
@@ -152,7 +153,7 @@ class CartController {
       await cartService.emptyCart(cid);
       res.status(200).send(await cartService.getCart(cid));
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
     }
   };
   deleteProdFromCart = async (req, res) => {
@@ -172,7 +173,7 @@ class CartController {
       }
       res.send(await cartService.getCart(cid));
     } catch (error) {
-      console.log(error);
+      req.logger.error(error);
     }
   };
 }

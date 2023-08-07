@@ -2,40 +2,20 @@ const { productModel } = require("../../models/productModel");
 
 class ProductManagerMongo {
   get = async () => {
-    try {
-      return await productModel.find();
-    } catch (error) {
-      return new Error(error);
-    }
+    return await productModel.find();
   };
 
   getById = async (pid) => {
-    try {
-      return await productModel.findOne({ _id: pid });
-    } catch (error) {
-      return new Error(error);
-    }
+    return await productModel.findOne({ _id: pid });
   };
   add = async (newProduct) => {
-    try {
-      await productModel.create(newProduct);
-    } catch (error) {
-      return new Error(error);
-    }
+    await productModel.create(newProduct);
   };
   update = async (pid, prodToReplace) => {
-    try {
-      await productModel.updateOne({ _id: pid }, prodToReplace);
-    } catch (error) {
-      return new Error(error);
-    }
+    await productModel.updateOne({ _id: pid }, prodToReplace);
   };
   delete = async (pid) => {
-    try {
-      await productModel.deleteOne({ _id: pid });
-    } catch (error) {
-      return new Error(error);
-    }
+    await productModel.deleteOne({ _id: pid });
   };
 }
 

@@ -13,8 +13,8 @@ class CartManager {
       if (!fsSync.existsSync(this.path)) {
         await fs.writeFile(this.path, "{}", "utf-8");
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
   loadProducts = async () => {
@@ -29,8 +29,8 @@ class CartManager {
       } else {
         this.products = [];
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -38,8 +38,8 @@ class CartManager {
     try {
       const dataJson = JSON.stringify(this.products, null, 2);
       await fs.writeFile(this.path, dataJson, "utf-8");
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -51,8 +51,8 @@ class CartManager {
 
       const cartList = findCart.productsCart;
       return cartList;
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -75,8 +75,8 @@ class CartManager {
 
       this.products.push(cart);
       this.saveProducts();
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -91,8 +91,8 @@ class CartManager {
       };
       findCart.productsCart.push(product);
       this.saveProducts();
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 }

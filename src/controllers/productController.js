@@ -48,7 +48,7 @@ class ProductController {
 
       res.status(200).sendSuccess("Product created successfully");
     } catch (error) {
-      next(error);
+      req.logger.error(error);
     }
   };
 
@@ -82,7 +82,7 @@ class ProductController {
 
       res.status(200).sendSuccess("Product updated successfully");
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
 
@@ -93,7 +93,7 @@ class ProductController {
       await productService.deleteProduct(pid);
       res.status(200).sendSuccess("Product deleted successfully");
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   getProduct = async (req, res) => {
@@ -104,7 +104,7 @@ class ProductController {
 
       res.send({ status: "success", payload: result });
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
   getProducts = async (req, res) => {
@@ -177,7 +177,7 @@ class ProductController {
         });
       }
     } catch (error) {
-      return new Error(error);
+      req.logger.error(error);
     }
   };
 }

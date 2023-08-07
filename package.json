@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
+    "artillery-plugin-metrics-by-endpoint": "^1.2.0",
     "bcrypt": "^5.1.0",
     "commander": "^11.0.0",
     "connect-mongo": "^5.0.0",
@@ -20,11 +21,12 @@
     "mongoose-paginate-v2": "^1.7.1",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.4",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "socket.io": "^4.7.1",
     "twilio": "^4.14.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "winston": "^3.10.0"
   }
 }

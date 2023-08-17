@@ -17,23 +17,37 @@ class ViewsController {
       req.logger.error(error);
     }
   };
-  restorePass = async (req, res) => {
+  emailRestorePass = async (req, res) => {
     try {
-      res.render("passRestore", {
+      res.render("emailRestorePass", {
         style: "index.css",
       });
     } catch (error) {
       req.logger.error(error);
     }
   };
-  chat = async (req, res)=>{
+  passRestore = async (req, res) => {
     try {
-      res.render("chat", {
-       
+      if (req.cookies["emailCookie"]) {
+        const { email } = req.params;
+        res.render("passRestore", {
+          style: "index.css",
+          email,
+        });
+      }
+      res.render("emailRestorePass", {
+        style: "index.css",
       });
     } catch (error) {
       req.logger.error(error);
     }
-  }
+  };
+  chat = async (req, res) => {
+    try {
+      res.render("chat", {});
+    } catch (error) {
+      req.logger.error(error);
+    }
+  };
 }
 module.exports = new ViewsController();

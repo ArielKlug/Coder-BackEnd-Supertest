@@ -8,7 +8,7 @@ const { generateUser } = require("../utils/TestingUtils/generateUserFaker");
 const {
   generateProducts,
 } = require("../utils/TestingUtils/generateProductFaker");
-const { faker } = require("@faker-js/faker");
+
 
 //funcion para configurar Mail
 class RouterPruebas extends RouterClass {
@@ -23,12 +23,7 @@ class RouterPruebas extends RouterClass {
     
     })
     this.get("/testuser", ["PUBLIC"], (req, res) => {
-      let first_name = faker.person.firstName()
-      let  last_name = faker.person.lastName()
-       let age = faker.string.numeric(2, {  })
-       let  email = faker.internet.email()
-       let  password = faker.internet.password()
-       
+     generateUser()
       
       res.send({ first_name, last_name, age, email, password });
     });

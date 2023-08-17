@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2')
-
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const collection = "products";
 
@@ -18,14 +17,16 @@ const productSchema = new Schema({
     required: true,
   },
   stock: Number,
-  category: { 
-    type: String, 
-    Index: true },
+  category: {
+    type: String,
+    Index: true,
+  },
+  owner: { type: Schema.Types.ObjectId, ref: "usuarios" },
 });
-productSchema.plugin(mongoosePaginate)
-
+productSchema.plugin(mongoosePaginate);
 
 const productModel = model(collection, productSchema);
+
 
 module.exports = {
   productModel,

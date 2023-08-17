@@ -1,15 +1,15 @@
 const { faker } = require("@faker-js/faker");
 
 const generateProducts = () => {
-    return {
-        title: faker.commerce.productName(),
-        price: faker.commerce.price(),
-        department: faker.commerce.department(),
-        stock: faker.string.numeric(),
-        description: faker.commerce.productDescription(),
-        id: faker.database.mongodbObjectId(),
-        image:faker.image.url()
-    }
+  return {
+    title: faker.commerce.productName(),
+    price: faker.commerce.price(),
+    department: faker.commerce.department(),
+    stock: faker.string.numeric(),
+    description: faker.commerce.productDescription(),
+    id: faker.database.mongodbObjectId(),
+    image: faker.image.url(),
+  };
 };
 
 exports.generateUser = () => {
@@ -23,8 +23,9 @@ exports.generateUser = () => {
   return {
     first_name: faker.person.firstName(),
     last_name: faker.person.lastName(),
-    sex: faker.person.sex(),
-    birth_date: faker.date.birthdate(),
-    products
-  }
+    age: faker.string.numeric(2, {}),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    products,
+  };
 };

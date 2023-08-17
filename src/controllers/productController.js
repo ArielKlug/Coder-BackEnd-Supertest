@@ -8,6 +8,11 @@ class ProductController {
   createProduct = async (req, res, next) => {
     try {
       const prod = req.body;
+      const user = req.user;
+
+      if (user.role === "user") {
+        return res.send({ status: "error", message: "Not permission" });
+      }
 
       if (
         !prod.title ||
@@ -19,11 +24,11 @@ class ProductController {
         !prod.category
       ) {
         CustomError.createError({
-          name: 'Product creation error',
+          name: "Product creation error",
           cause: generateProductErrorInfo(prod),
-          message: 'Error trying to create the products',
-          code: EError.INVALID_TYPE_ERROR
-        })
+          message: "Error trying to create the product",
+          code: EError.INVALID_TYPE_ERROR,
+        });
       } else {
         const codeCheck = await productService.getProducts();
 
@@ -33,20 +38,35 @@ class ProductController {
             mensaje: "Ya existe un producto con ese código",
           });
         } else {
-          let newProduct = {
-            title: prod.title,
-            description: prod.description,
-            price: prod.price,
-            thumbnail: prod.thumbnail,
-            code: prod.code,
-            stock: prod.stock,
-            category: prod.category,
-          };
-          await productService.addProduct(newProduct);
+          if (user.role === "user_premium") {
+            let newProduct = {
+              title: prod.title,
+              description: prod.description,
+              price: prod.price,
+              thumbnail: prod.thumbnail,
+              code: prod.code,
+              stock: prod.stock,
+              category: prod.category,
+              owner: user.email,
+            };
+            await productService.addProduct(newProduct);
+           return res.status(200).sendSuccess("Product created successfully");
+          } else {
+            let newProduct = {
+              title: prod.title,
+              description: prod.description,
+              price: prod.price,
+              thumbnail: prod.thumbnail,
+              code: prod.code,
+              stock: prod.stock,
+              category: prod.category,
+              owner: "admin",
+            };
+            await productService.addProduct(newProduct);
+            return res.status(200).sendSuccess("Product created successfully");
+          }
         }
       }
-
-      res.status(200).sendSuccess("Product created successfully");
     } catch (error) {
       req.logger.error(error);
     }
@@ -54,14 +74,16 @@ class ProductController {
 
   updateProduct = async (req, res) => {
     try {
+      const { user } = req.user;
       const { pid } = req.params;
+      const prodToReplace = req.body;
+
       if (!pid) {
         return res.send({
           status: "error",
           message: "Insert valid product Id",
         });
       }
-      const prodToReplace = req.body;
       if (
         !prodToReplace ||
         !prodToReplace.title ||
@@ -77,10 +99,23 @@ class ProductController {
           message: "Insert valid updated fields",
         });
       }
+      if (user.role === "user_premium") {
+        const product = await productService.getProductById(pid);
 
-      await productService.updateProduct(pid, prodToReplace);
-
-      res.status(200).sendSuccess("Product updated successfully");
+        if (product.owner === user.email) {
+          await productService.updateProduct(pid, prodToReplace);
+          return res.send("usuario premium actualiza su propio producto");
+        } else {
+         return res.send({
+            status: "Error",
+            error: "El producto a actualizar, no le pertenece",
+          });
+        }
+      }
+      if (user.role === "admin") {
+        await productService.updateProduct(pid, prodToReplace);
+        return res.status(200).sendSuccess("Product updated successfully");
+      }
     } catch (error) {
       req.logger.error(error);
     }
@@ -89,9 +124,24 @@ class ProductController {
   deleteProduct = async (req, res) => {
     try {
       const { pid } = req.params;
+      const user = req.user;
+      if (user.role === "user_premium") {
+        const product = await productService.getProductById(pid);
 
-      await productService.deleteProduct(pid);
-      res.status(200).sendSuccess("Product deleted successfully");
+        if (product.owner === user.email) {
+          await productService.deleteProduct(pid);
+          return res.send("usuario premium elimina su propio producto");
+        } else {
+          return res.send({
+            status: "Error",
+            error: "El producto a eliminar, no le pertenece",
+          });
+        }
+      }
+      if (user.role === "admin") {
+        await productService.deleteProduct(pid);
+       return res.status(200).sendSuccess("Product deleted successfully");
+      }
     } catch (error) {
       req.logger.error(error);
     }
@@ -102,7 +152,7 @@ class ProductController {
 
       let result = await productService.getProductById(pid);
 
-      res.send({ status: "success", payload: result });
+     return res.send({ status: "success", payload: result });
     } catch (error) {
       req.logger.error(error);
     }
@@ -140,7 +190,7 @@ class ProductController {
       const { docs, hasPrevPage, hasNextPage, prevPage, nextPage, totalPages } =
         productos;
       if (!docs) {
-        res.send({
+       return res.send({
           status: "Error",
           message: "Can not find the products",
         });
@@ -164,7 +214,7 @@ class ProductController {
           cartId,
         });
       } else {
-        res.render("products", {
+        return res.render("products", {
           status: "success",
           payload: payload,
           products: docs,

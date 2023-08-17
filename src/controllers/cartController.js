@@ -1,8 +1,6 @@
-
 const { cartService } = require("../services/cartService");
 const { productService } = require("../services/productService");
 const { ticketService } = require("../services/ticketService");
-
 
 class CartController {
   getOneCart = async (req, res) => {
@@ -10,11 +8,11 @@ class CartController {
       const { cid } = req.params;
 
       const cart = await cartService.getCart(cid);
-      const cartData = cart.toObject();
 
       if (!cart) {
         return res.status(404).json({ error: "Carrito no encontrado" });
       }
+      const cartData = cart.toObject();
 
       res.render("cart", {
         cart: cartData,
@@ -78,7 +76,7 @@ class CartController {
         outstockedProds.forEach((item) => {
           productsNotBuyed.push(item.product._id);
         });
-        
+
         res.send({
           ticketResult: ticketResult,
           message:
@@ -100,11 +98,19 @@ class CartController {
       req.logger.error(error);
     }
   };
-  addProdToCart = async (req, res) => {
+  addProdToCart = async (req, res, next) => {
     try {
       const { cid } = req.params;
       const { pid } = req.params;
+      const user = req.user;
 
+      const product = await productService.getProductById(pid);
+      if (user.role === "user_premium" && product.owner === user.email) {
+        return res.status(403).send({
+            status: "error",
+            message: "No puedes agregar tu propio producto al carrito",
+        });
+    }
       const findedCart = await cartService.getCart(cid);
       const foundProductIndex = findedCart.products.findIndex(
         (prod) => prod.product.id === pid
@@ -126,24 +132,18 @@ class CartController {
 
         cart.products.push({ product: pid, quantity: 1 });
         await cart.save();
-
-        req.logger.info("Producto agregado al carrito");
       }
 
       // Obtener el carrito actualizado después de la operación
       const updatedCart = await cartService.getCart(cid);
 
-      res.send({
+      return res.send({
         status: "success",
         payload: "El producto fue agregado con éxito",
         cart: updatedCart,
       });
     } catch (error) {
       req.logger.error(error);
-      res.status(500).send({
-        status: "error",
-        payload: "Error al agregar el producto al carrito",
-      });
     }
   };
 
@@ -169,7 +169,7 @@ class CartController {
         cart.products.splice(index, 1);
         await cartService.updateCart(cid, cart);
       } else {
-        throw new Error("Se produjo un error al borrar el producto");
+        req.logger.error("Se produjo un error al borrar el producto");
       }
       res.send(await cartService.getCart(cid));
     } catch (error) {

@@ -4,11 +4,12 @@ const { cartService } = require("../services/cartService");
 const { sessionsService } = require("../services/sessionService");
 const { createHash, isValidPassword } = require("../utils/bcryptHash");
 const { generateToken } = require("../utils/generateTokenJwt");
+const { sendMail } = require("../utils/sendMail");
 
 class SessionsController {
   register = async (req, res) => {
     try {
-      const {  first_name, last_name, age, email, password } = req.body;
+      const { first_name, last_name, age, email, password } = req.body;
       const newCart = {
         products: [],
         userId: "",
@@ -53,14 +54,14 @@ class SessionsController {
       }
       const userDB = await sessionsService.getUserByEmail({ email });
 
-      let verifyPass = isValidPassword(password, userDB);
-
       if (!userDB) {
         return res.send({
           status: "error",
           message: "No existe ese usuario, revise los campos",
         });
       }
+      let verifyPass = isValidPassword(password, userDB);
+
       if (!verifyPass) {
         return res.sendUserError("Email or password incorrect");
       }
@@ -73,6 +74,7 @@ class SessionsController {
       };
 
       const access_token = generateToken(userToToken);
+
       if (!access_token) {
         return res.send({
           status: "error",
@@ -82,7 +84,7 @@ class SessionsController {
 
       res
         .cookie("coderCookie", access_token, {
-          maxAge: 60 * 60 * 100 * 10000,
+          maxAge: 86400 * 1000,
           httpOnly: true,
         })
         .redirect("http://localhost:8080/api/products");
@@ -98,9 +100,39 @@ class SessionsController {
       req.logger.error(error);
     }
   };
-  restorePass = async (req, res) => {
+  emailRestorePass = async (req, res) => {
+    const { email } = req.body;
+
+    const userDB = await sessionsService.getUserByEmail({ email });
+
+    if (!userDB) {
+      return res
+        .status(401)
+        .send({ status: "error", message: "El usuario no existe" });
+    }
+    let user = new UserDto(userDB);
+    const token = generateToken(user);
+
+    let destinatario = email;
+    let asunto = "Restablecer contraseña del mercadito del tío Ari :)";
+    let html = `<div><h1>Para restaurar su contraseña, haga click en el botón</h1>
+    
+    <a href="http://localhost:8080/views/passRestore/${email}"><button>Restaurar contraseña</button></a>
+    </div>`;
+    await sendMail(destinatario, asunto, html);
+    res
+      .cookie("emailCookie", token, {
+        maxAge: 3600 * 1000,
+        httpOnly: true,
+      })
+      .redirect("http://localhost:8080");
+  };
+  passRestore = async (req, res) => {
     try {
-      const { email, password } = req.body;
+      if (!req.cookies["emailCookie"]) {
+        res.redirect("http://localhost:8080/views/emailRestorePass");
+      }
+      const { email, newPassword, confirmPassword } = req.body;
 
       const userDB = await sessionsService.getUserByEmail({ email });
 
@@ -110,13 +142,30 @@ class SessionsController {
           .send({ status: "error", message: "El usuario no existe" });
       }
 
-      userDB.password = createHash(password);
-      await userDB.save();
+      if (newPassword === confirmPassword) {
+        //validar si la contraseña enviada es la previamente establecida
+        let isValid = isValidPassword(newPassword, userDB);
 
-      res.status(200).send({
-        status: "success",
-        message: "Contraseña actualizada correctamente",
-      });
+        if (isValid) {
+          return res.send({
+            status: "error",
+            message: "no podes poner la misma contraseña de antes",
+          });
+        }
+
+        userDB.password = createHash(newPassword);
+
+        await userDB.save();
+
+        return res.status(200).send({
+          status: "success",
+          message: "Contraseña actualizada correctamente",
+        });
+      } else {
+        return res
+          .status(401)
+          .send({ status: "error", message: "Las contraseñas no coinciden" });
+      }
     } catch (error) {
       req.logger.error(error);
     }
@@ -145,12 +194,66 @@ class SessionsController {
   };
   current = async (req, res) => {
     try {
-      
-      let user = new UserDto(req.user)
+      let user = new UserDto(req.user);
       res.send(user);
     } catch (error) {
       req.logger.error(error);
     }
+  };
+  premium = async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const user = req.user;
+      let userUpdated;
+      let token;
+      let normalizedUser;
+      let email = user.email
+      switch (user.role) {
+        case "user":
+          
+          user.role = "user_premium";
+          await sessionsService.updateUser(uid, user);
+          
+          userUpdated = await sessionsService.getUserByEmail({email});
+          
+          normalizedUser = new UserDto(userUpdated);
+          console.log(normalizedUser);
+          token = generateToken(normalizedUser);
+          
+          res
+            .cookie("coderCookie", token, {
+              maxAge: 86400 * 1000,
+              httpOnly: true,
+            })
+            .redirect("http://localhost:8080/api/products");
+          break;
+        case "user_premium":
+          user.role = "user";
+          await sessionsService.updateUser(uid, user);
+          userUpdated = await sessionsService.getUserByEmail({email});
+          normalizedUser = new UserDto(userUpdated);
+          console.log(normalizedUser);
+          token = generateToken(normalizedUser);
+          res
+            .cookie("coderCookie", token, {
+              maxAge: 86400 * 1000,
+              httpOnly: true,
+            })
+            .redirect("http://localhost:8080/api/products");
+          break;
+        default:
+          break;
+      }
+      if (user.role === "user") {
+      }
+      if (user.role === "user_premium") {
+      }
+    } catch (error) {
+      req.logger.error(error);
+    }
+  };
+  logout = async (req, res) => {
+    res.clearCookie("coderCookie").redirect("http://localhost:8080/");
   };
 }
 

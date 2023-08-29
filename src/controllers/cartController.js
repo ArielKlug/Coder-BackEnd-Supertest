@@ -107,25 +107,21 @@ class CartController {
       const product = await productService.getProductById(pid);
       if (user.role === "user_premium" && product.owner === user.email) {
         return res.status(403).send({
-            status: "error",
-            message: "No puedes agregar tu propio producto al carrito",
+          status: "error",
+          message: "No puedes agregar tu propio producto al carrito",
         });
-    }
+      }
       const findedCart = await cartService.getCart(cid);
       const foundProductIndex = findedCart.products.findIndex(
         (prod) => prod.product.id === pid
       );
 
       if (foundProductIndex !== -1) {
-        // El producto ya existe en el carrito, se incrementa la cantidad
         await cartService.updateQuantityOfProduct(cid, pid);
       } else {
-        // El producto no existe en el carrito, se agrega uno nuevo con cantidad 1
-
         const cart = await cartService.getCart(cid);
 
         if (!cart) {
-          // El carrito no existe
           req.logger.warning("Carrito no encontrado");
           return;
         }

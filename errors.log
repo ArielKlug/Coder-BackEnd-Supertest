@@ -5,53 +5,6 @@ fatal: éste es un texto de Fatal desde logger
 error: éste es un texto de Error desde logger
 fatal: éste es un texto de Fatal desde logger
 error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
 error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined {"code":"ERR_HTTP_HEADERS_SENT"}
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
-error: undefined
+error: éste es un texto de Error desde logger
+fatal: éste es un texto de Fatal desde logger

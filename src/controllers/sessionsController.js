@@ -10,15 +10,17 @@ class SessionsController {
   register = async (req, res) => {
     try {
       const { first_name, last_name, age, email, password } = req.body;
+      if (!age || !first_name || !last_name || !email || !password) {
+        res.userError("All fields are necesary");
+      }
+      
       const newCart = {
         products: [],
         userId: "",
       };
 
       const cart = await cartService.addCart(newCart);
-      if (!age || !first_name || !last_name || !email || !password) {
-        res.userError("All fields are necesary");
-      }
+      
 
       const newUser = {
         first_name: first_name,

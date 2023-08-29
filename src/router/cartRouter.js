@@ -14,9 +14,18 @@ class CartRouter extends RouterClass {
   init() {
     this.get("/:cid", ["USER", "USER_PREMIUM"], getOneCart);
     this.get("/", ["ADMIN"], getAllCarts);
-    this.post("/:cid/products/:pid", ["USER", "USER_PREMIUM"], passportAuth("jwt"), addProdToCart);
+    this.post(
+      "/:cid/products/:pid",
+      ["USER", "USER_PREMIUM"],
+      passportAuth("jwt"),
+      addProdToCart
+    );
     this.delete("/:cid", ["USER", "USER_PREMIUM"], emptyCart);
-    this.delete("/:cid/products/:pid", ["USER", "USER_PREMIUM"], deleteProdFromCart);
+    this.delete(
+      "/:cid/products/:pid",
+      ["USER", "USER_PREMIUM"],
+      deleteProdFromCart
+    );
     this.get("/:cid/purchase", ["USER", "USER_PREMIUM"], purchase);
   }
 }

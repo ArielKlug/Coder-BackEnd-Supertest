@@ -21,12 +21,11 @@ const productSchema = new Schema({
     type: String,
     Index: true,
   },
-  owner: { type: Schema.Types.ObjectId, ref: "usuarios" },
+  owner: { type: String, ref: "usuarios" },
 });
 productSchema.plugin(mongoosePaginate);
 
 const productModel = model(collection, productSchema);
-
 
 module.exports = {
   productModel,

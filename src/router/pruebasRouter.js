@@ -9,22 +9,20 @@ const {
   generateProducts,
 } = require("../utils/TestingUtils/generateProductFaker");
 
-
 //funcion para configurar Mail
 class RouterPruebas extends RouterClass {
   init() {
-    this.get('/logger-test', ['PUBLIC'], (req, res) =>{
-      req.logger.debug('éste es un texto de Debug desde logger')
-      req.logger.http('éste es un texto de Http desde logger')
-      req.logger.info('éste es un texto de Info desde logger')
-      req.logger.warning('éste es un texto de Warning desde logger')
-      req.logger.error('éste es un texto de Error desde logger')
-      req.logger.fatal('éste es un texto de Fatal desde logger')
-    
-    })
+    this.get("/logger-test", ["PUBLIC"], (req, res) => {
+      req.logger.debug("éste es un texto de Debug desde logger");
+      req.logger.http("éste es un texto de Http desde logger");
+      req.logger.info("éste es un texto de Info desde logger");
+      req.logger.warning("éste es un texto de Warning desde logger");
+      req.logger.error("éste es un texto de Error desde logger");
+      req.logger.fatal("éste es un texto de Fatal desde logger");
+    });
     this.get("/testuser", ["PUBLIC"], (req, res) => {
-     generateUser()
-      
+      generateUser();
+
       res.send({ first_name, last_name, age, email, password });
     });
     this.get("/simple", ["PUBLIC"], (req, res) => {
@@ -41,10 +39,7 @@ class RouterPruebas extends RouterClass {
       }
       res.send({ suma: suma });
     });
-    this.get("/logger", ["PUBLIC"], async (req, res) => {
-      req.logger.warning("warning capo");
-      res.send({ message: "prueba logger" });
-    });
+
     this.get("/mockUsers", ["PUBLIC"], (req, res) => {
       let users = [];
       for (let i = 0; i < 100; i++) {

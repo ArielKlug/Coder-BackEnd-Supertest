@@ -7,9 +7,6 @@ const { passportAuth } = require("../passportConfig/passportAuth");
 
 class ProductRouter extends RouterClass {
   init() {
-    this.post("/", ["USER_PREMIUM", "ADMIN"], passportAuth("jwt"), products.createProduct);
-    this.put("/:pid", ["USER_PREMIUM", "ADMIN"], passportAuth("jwt"), products.updateProduct);
-    this.delete("/:pid", ["USER_PREMIUM", "ADMIN"], passportAuth("jwt"), products.deleteProduct);
     this.get(
       "/",
       ["USER", "USER_PREMIUM", "ADMIN"],
@@ -21,6 +18,24 @@ class ProductRouter extends RouterClass {
       ["USER", "USER_PREMIUM", "ADMIN"],
       passportAuth("jwt"),
       products.getProduct
+    );
+    this.post(
+      "/",
+      ["USER_PREMIUM", "ADMIN"],
+      passportAuth("jwt"),
+      products.createProduct
+    );
+    this.put(
+      "/:pid",
+      ["USER_PREMIUM", "ADMIN"],
+      passportAuth("jwt"),
+      products.updateProduct
+    );
+    this.delete(
+      "/:pid",
+      ["USER_PREMIUM", "ADMIN"],
+      passportAuth("jwt"),
+      products.deleteProduct
     );
   }
 }

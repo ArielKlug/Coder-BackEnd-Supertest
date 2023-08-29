@@ -50,7 +50,7 @@ class ProductController {
               owner: user.email,
             };
             await productService.addProduct(newProduct);
-           return res.status(200).sendSuccess("Product created successfully");
+            return res.status(200).sendSuccess("Product created successfully");
           } else {
             let newProduct = {
               title: prod.title,
@@ -106,7 +106,7 @@ class ProductController {
           await productService.updateProduct(pid, prodToReplace);
           return res.send("usuario premium actualiza su propio producto");
         } else {
-         return res.send({
+          return res.send({
             status: "Error",
             error: "El producto a actualizar, no le pertenece",
           });
@@ -140,7 +140,7 @@ class ProductController {
       }
       if (user.role === "admin") {
         await productService.deleteProduct(pid);
-       return res.status(200).sendSuccess("Product deleted successfully");
+        return res.status(200).sendSuccess("Product deleted successfully");
       }
     } catch (error) {
       req.logger.error(error);
@@ -152,7 +152,7 @@ class ProductController {
 
       let result = await productService.getProductById(pid);
 
-     return res.send({ status: "success", payload: result });
+      return res.send({ status: "success", payload: result });
     } catch (error) {
       req.logger.error(error);
     }
@@ -190,7 +190,7 @@ class ProductController {
       const { docs, hasPrevPage, hasNextPage, prevPage, nextPage, totalPages } =
         productos;
       if (!docs) {
-       return res.send({
+        return res.send({
           status: "Error",
           message: "Can not find the products",
         });

@@ -5,6 +5,9 @@ const passport = require("passport");
 const compression = require("express-compression");
 const cors = require("cors");
 
+//swagger
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUiExpress = require("swagger-ui-express");
 
 const { initPassport } = require("./passportConfig/passportConfig.js");
 const { socketChat } = require("./utils/chatServer.js");
@@ -13,19 +16,14 @@ const { addLogger } = require("./middlewares/loggerMiddleware.js");
 const { logger } = require("./config/logger.js");
 const router = require("./router/index.js");
 
-
-const { Server: ServerHTTP } = require('http')
-const { Server: ServerIO } = require('socket.io')
+const { Server: ServerHTTP } = require("http");
+const { Server: ServerIO } = require("socket.io");
 
 const app = express();
-const serverHttp = new ServerHTTP(app)
+const serverHttp = new ServerHTTP(app);
 const io = new ServerIO(serverHttp);
 
-
-
 const PORT = process.env.PORT;
-
-
 
 socketChat(io);
 initPassport();
@@ -53,9 +51,22 @@ app.use(router);
 // exports.initServer = () => serverHttp.listen(PORT, () => {
 //     logger.info(`Server listening ${PORT}`);
 //   });
- 
-  
 
- serverHttp.listen(PORT, () => {
-    logger.info(`Server listening ${PORT}`);
-  });
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.1",
+    info: {
+      title: "Documentación del Mercadito del Tío Ari :)",
+      description: "Esta es la documentación del Mercadito del Tío Ari :)",
+    },
+  },
+  apis: [`${__dirname}/docs/**/*.yaml`],
+};
+
+const specs = swaggerJsDoc(swaggerOptions);
+
+app.use("/docs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
+
+serverHttp.listen(PORT, () => {
+  logger.info(`Server listening ${PORT}`);
+});

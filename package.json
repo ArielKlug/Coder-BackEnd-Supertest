@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "nodemon src/server.js --mode development",
     "start": "nodemon src/server.js --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/supertest.test.js"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
@@ -30,5 +30,10 @@
     "twilio": "^4.14.0",
     "uuid": "^9.0.0",
     "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.8",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   }
 }

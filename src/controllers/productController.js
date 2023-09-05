@@ -10,10 +10,10 @@ class ProductController {
       const prod = req.body;
       const user = req.user;
 
-      if (user.role === "user") {
+      if (user.role === "user" || user.role !== 'admin' && user.role !== 'user_premium') {
         return res.send({ status: "error", message: "Not permission" });
       }
-
+      
       if (
         !prod.title ||
         !prod.description ||
@@ -38,6 +38,7 @@ class ProductController {
             mensaje: "Ya existe un producto con ese código",
           });
         } else {
+       
           if (user.role === "user_premium") {
             let newProduct = {
               title: prod.title,
@@ -49,8 +50,8 @@ class ProductController {
               category: prod.category,
               owner: user.email,
             };
-            await productService.addProduct(newProduct);
-            return res.status(200).sendSuccess("Product created successfully");
+           const productCreated = await productService.addProduct(newProduct);
+            return res.status(200).send({status: 'success', payload: productCreated});
           } else {
             let newProduct = {
               title: prod.title,
@@ -62,8 +63,8 @@ class ProductController {
               category: prod.category,
               owner: "admin",
             };
-            await productService.addProduct(newProduct);
-            return res.status(200).sendSuccess("Product created successfully");
+           const productCreated = await productService.addProduct(newProduct);
+            return res.status(200).send({status: 'success', payload: productCreated});
           }
         }
       }
@@ -74,7 +75,7 @@ class ProductController {
 
   updateProduct = async (req, res) => {
     try {
-      const { user } = req.user;
+      const  user  = req.user;
       const { pid } = req.params;
       const prodToReplace = req.body;
 
@@ -103,8 +104,8 @@ class ProductController {
         const product = await productService.getProductById(pid);
 
         if (product.owner === user.email) {
-          await productService.updateProduct(pid, prodToReplace);
-          return res.send("usuario premium actualiza su propio producto");
+          const updatedProduct = await productService.updateProduct(pid, prodToReplace);
+          return res.status(200).send({status: 'success', payload: updatedProduct});
         } else {
           return res.send({
             status: "Error",
@@ -113,8 +114,8 @@ class ProductController {
         }
       }
       if (user.role === "admin") {
-        await productService.updateProduct(pid, prodToReplace);
-        return res.status(200).sendSuccess("Product updated successfully");
+        const updatedProduct = await productService.updateProduct(pid, prodToReplace);
+        return res.status(200).send({status: 'success', payload: updatedProduct});
       }
     } catch (error) {
       req.logger.error(error);
@@ -129,8 +130,8 @@ class ProductController {
         const product = await productService.getProductById(pid);
 
         if (product.owner === user.email) {
-          await productService.deleteProduct(pid);
-          return res.send("usuario premium elimina su propio producto");
+         const deletedProd = await productService.deleteProduct(pid);
+          return res.send({status: 'success', payload: deletedProd});
         } else {
           return res.send({
             status: "Error",
@@ -139,8 +140,8 @@ class ProductController {
         }
       }
       if (user.role === "admin") {
-        await productService.deleteProduct(pid);
-        return res.status(200).sendSuccess("Product deleted successfully");
+       const deletedProd = await productService.deleteProduct(pid);
+        return res.status(200).send({status: 'success', payload: deletedProd});
       }
     } catch (error) {
       req.logger.error(error);
@@ -150,7 +151,7 @@ class ProductController {
     try {
       const { pid } = req.params;
 
-      let result = await productService.getProductById(pid);
+      const result = await productService.getProductById(pid);
 
       return res.send({ status: "success", payload: result });
     } catch (error) {
@@ -196,6 +197,7 @@ class ProductController {
         });
       }
       const payload = `Se encontraron ${docs.length} productos en la página ${page}`;
+      
       if (req.user) {
         const { first_name, last_name, role, cartId } = req.user;
         return res.render("products", {

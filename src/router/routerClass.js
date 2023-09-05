@@ -28,13 +28,13 @@ class RouterClass {
    
     if (!token) return res.send({ status: "error", error: "No authorization" });
 
-    const user = jwt.verify(token, JWT_PRIVATE_KEY);
+    const {user} = jwt.verify(token, JWT_PRIVATE_KEY);
 
-    if (!policies.includes(user.user.role.toUpperCase()))
+    if (!policies.includes(user.role.toUpperCase()))
       return res
         .status(403)
         .send({ status: "error", error: "Not permissions" });
-    req.user = user.user;
+    req.user = user;
 
     next();
   };

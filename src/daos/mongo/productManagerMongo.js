@@ -9,13 +9,13 @@ class ProductManagerMongo {
     return await productModel.findOne({ _id: pid });
   };
   add = async (newProduct) => {
-    await productModel.create(newProduct);
+    return await productModel.create(newProduct);
   };
   update = async (pid, prodToReplace) => {
-    await productModel.updateOne({ _id: pid }, prodToReplace);
+    return await productModel.updateOne({ _id: pid }, prodToReplace);
   };
   delete = async (pid) => {
-    await productModel.deleteOne({ _id: pid });
+    return await productModel.deleteOne({ _id: pid });
   };
 }
 

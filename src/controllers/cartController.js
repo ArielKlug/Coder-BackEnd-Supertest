@@ -6,17 +6,25 @@ class CartController {
   getOneCart = async (req, res) => {
     try {
       const { cid } = req.params;
-
-      const cart = await cartService.getCart(cid);
-
-      if (!cart) {
-        return res.status(404).json({ error: "Carrito no encontrado" });
+      const user = req.user;
+      if (user.role === "admin") {
+        return res.send({
+          status: "error",
+          message: "Admin not allowed to spy 1 cart",
+        });
       }
-      const cartData = cart.toObject();
+      if (user.role === "user" || user.role === "user.premium") {
+        const cart = await cartService.getCart(cid);
 
-      res.render("cart", {
-        cart: cartData,
-      });
+        if (!cart) {
+          return res.status(404).json({ error: "Carrito no encontrado" });
+        }
+        const cartData = cart.toObject();
+
+        res.render("cart", {
+          cart: cartData,
+        });
+      }
     } catch (error) {
       req.logger.error(error);
     }
@@ -77,7 +85,7 @@ class CartController {
           productsNotBuyed.push(item.product._id);
         });
 
-        res.send({
+        return res.send({
           ticketResult: ticketResult,
           message:
             "Por el momento no tenemos stock para el total de su compra, ya estamos trabajando en ello",
@@ -85,7 +93,7 @@ class CartController {
         });
       } else {
         await cartService.emptyCart(cid);
-        res.send({ ticketResult: ticketResult });
+        return res.send({ ticketResult: ticketResult });
       }
     } catch (error) {
       req.logger.error(error);
@@ -93,7 +101,12 @@ class CartController {
   };
   getAllCarts = async (req, res) => {
     try {
-      res.send(await cartService.getCarts());
+      const user = req.user;
+      if (user.role !== "admin") {
+        res.send({ status: "error", message: "Not permission" });
+      }
+      const carts = await cartService.getCarts();
+      res.send({ status: "success", payload: carts });
     } catch (error) {
       req.logger.error(error);
     }
@@ -104,6 +117,9 @@ class CartController {
       const { pid } = req.params;
       const user = req.user;
 
+      if (user.role === "admin") {
+        return res.send({ status: "error", message: "An admin can not buy" });
+      }
       const product = await productService.getProductById(pid);
       if (user.role === "user_premium" && product.owner === user.email) {
         return res.status(403).send({
@@ -135,8 +151,7 @@ class CartController {
 
       return res.send({
         status: "success",
-        payload: "El producto fue agregado con éxito",
-        cart: updatedCart,
+        payload: updatedCart,
       });
     } catch (error) {
       req.logger.error(error);
@@ -156,18 +171,31 @@ class CartController {
     try {
       const { cid } = req.params;
       const { pid } = req.params;
+      const user = req.user;
 
-      const cart = await cartService.getCart(cid);
-
-      const index = cart.products.find((product) => product._id === pid);
-
-      if (index !== -1) {
-        cart.products.splice(index, 1);
-        await cartService.updateCart(cid, cart);
-      } else {
-        req.logger.error("Se produjo un error al borrar el producto");
+      if (user.role === "admin") {
+        return res.send({
+          status: "error",
+          message: "Admin can not delete products form carts",
+        });
       }
-      res.send(await cartService.getCart(cid));
+      if (user.role === "user" || user.role === "user_premium") {
+        const cart = await cartService.getCart(cid);
+
+        const index = cart.products.find((product) => product._id === pid);
+
+        if (index !== -1) {
+          cart.products.splice(index, 1);
+          await cartService.updateCart(cid, cart);
+        } else {
+          return res.send({
+            status: "error",
+            error: "Product not found in cart",
+          });
+        }
+        const updatedCart = await cartService.getCart(cid);
+        return res.send({ status: "success", payload: updatedCart });
+      }
     } catch (error) {
       req.logger.error(error);
     }
